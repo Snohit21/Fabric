@@ -1,0 +1,237 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "DataWarehouseSource",
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "DataWarehouseTable",
+            "typeProperties": {
+              "schema": "dbo",
+              "table": "watermarktable"
+            },
+            "schema": [],
+            "linkedService": {
+              "name": "Data_Source",
+              "properties": {
+                "type": "DataWarehouse",
+                "typeProperties": {
+                  "artifactId": "008c16ac-c939-9493-4a01-b3cd6d6ad4d3",
+                  "endpoint": "qqeryyplr5te5cuma42lcvyvam-bqf7cwuqagruvptbufd6z4455e.datawarehouse.fabric.microsoft.com",
+                  "workspaceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "LookupOldWaterMarkActivity",
+        "description": "Create a lookup activity to get the last watermark value. We'll get the default value 1/1/2010 12:00:00 AM that we set earlier.",
+        "dependsOn": []
+      },
+      {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "DataWarehouseSource",
+            "sqlReaderQuery": "Select max(LastModifiedDate) as NewWatermarkValue from data_source_table",
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "DataWarehouseTable",
+            "typeProperties": {
+              "schema": "dbo",
+              "table": "data_source_table"
+            },
+            "schema": [],
+            "linkedService": {
+              "name": "Data_Source",
+              "properties": {
+                "type": "DataWarehouse",
+                "typeProperties": {
+                  "artifactId": "008c16ac-c939-9493-4a01-b3cd6d6ad4d3",
+                  "endpoint": "qqeryyplr5te5cuma42lcvyvam-bqf7cwuqagruvptbufd6z4455e.datawarehouse.fabric.microsoft.com",
+                  "workspaceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "LookupNewWaterMarkActivity",
+        "description": "Create a lookup activity to get the new watermark value. You'll use a query to get the new watermark from your source data table. We'll get the highest value in the LastModifytime column from data_source_table.\n\n",
+        "dependsOn": []
+      },
+      {
+        "type": "Copy",
+        "typeProperties": {
+          "source": {
+            "type": "DataWarehouseSource",
+            "sqlReaderQuery": {
+              "value": "select * from data_source_table \nwhere LastModifiedDate > '@{activity('LookupOldWaterMarkActivity').output.firstRow.WatermarkValue}' \nand LastModifiedDate <= '@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}'",
+              "type": "Expression"
+            },
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00",
+            "datasetSettings": {
+              "type": "DataWarehouseTable",
+              "typeProperties": {
+                "schema": "dbo",
+                "table": "data_source_table"
+              },
+              "schema": [],
+              "linkedService": {
+                "name": "Data_Source",
+                "properties": {
+                  "type": "DataWarehouse",
+                  "typeProperties": {
+                    "artifactId": "008c16ac-c939-9493-4a01-b3cd6d6ad4d3",
+                    "endpoint": "qqeryyplr5te5cuma42lcvyvam-bqf7cwuqagruvptbufd6z4455e.datawarehouse.fabric.microsoft.com",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "sink": {
+            "type": "DelimitedTextSink",
+            "formatSettings": {
+              "type": "DelimitedTextWriteSettings",
+              "fileExtension": ".txt"
+            },
+            "storeSettings": {
+              "type": "LakehouseWriteSettings"
+            },
+            "datasetSettings": {
+              "type": "DelimitedText",
+              "typeProperties": {
+                "location": {
+                  "type": "LakehouseLocation",
+                  "folderPath": "IncreamentakCopy",
+                  "fileName": "CONCAT('Incremental-', pipeline().RunId, '.txt')"
+                },
+                "columnDelimiter": ",",
+                "quoteChar": "\"",
+                "escapeChar": "\\",
+                "firstRowAsHeader": true
+              },
+              "schema": [],
+              "linkedService": {
+                "name": "Increamenta_Load_LH_Destination",
+                "properties": {
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "artifactId": "16869f01-f6cc-9a83-4600-742675c73967",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000",
+                    "rootFolder": "Files"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          },
+          "enableStaging": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "IncrementalCopyActivity",
+        "dependsOn": [
+          {
+            "activity": "LookupOldWaterMarkActivity",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "LookupNewWaterMarkActivity",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[dbo].[usp_write_watermark]",
+          "storedProcedureParameters": {
+            "LastModifiedDate": {
+              "value": "@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}",
+              "type": "DateTime"
+            },
+            "TableName": {
+              "value": "@{activity('LookupOldWaterMarkActivity').output.firstRow.TableName}\n",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "Data_Source",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "008c16ac-c939-9493-4a01-b3cd6d6ad4d3",
+              "endpoint": "qqeryyplr5te5cuma42lcvyvam-bqf7cwuqagruvptbufd6z4455e.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "StoredProceduretoWriteWatermarkActivity",
+        "dependsOn": [
+          {
+            "activity": "IncrementalCopyActivity",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Warehouse",
+    "displayName": "Data_Source",
+    "description": "From we will fetch the increamental data load\n"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "008c16ac-c939-9493-4a01-b3cd6d6ad4d3"
+  }
+}

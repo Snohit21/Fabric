@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Lakehouse",
+    "displayName": "Increamenta_Load_LH_Destination"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "16869f01-f6cc-9a83-4600-742675c73967"
+  }
+}
