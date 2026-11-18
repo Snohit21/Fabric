@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Local data and runtime output
+data/generated/
+*.log
+.sparkStaging/
+.fabric/
+.vscode/
+.DS_Store
+Thumbs.db
