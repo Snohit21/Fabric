@@ -1,0 +1,6 @@
+product_id,product_name,category,unit_price,is_active,created_at,modified_at
+101,Electronics Item 101,Electronics,12999.00,true,2025-01-01 09:00:00,2025-01-01 09:00:00
+102,Home Item 102,Home,2499.00,true,2025-01-02 09:00:00,2025-01-02 09:00:00
+103,Books Item 103,Books,499.00,true,2025-01-03 09:00:00,2025-01-03 09:00:00
+104,Fitness Item 104,Fitness,1599.00,true,2025-01-04 09:00:00,2025-01-04 09:00:00
+105,Clothing Item 105,Clothing,999.00,true,2025-01-05 09:00:00,2025-01-05 09:00:00
