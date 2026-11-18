@@ -1,0 +1,2 @@
+# The synthetic data generator uses only the Python standard library.
+# PySpark is provided by the Microsoft Fabric notebook runtime.
