@@ -1,8 +1,12 @@
 # Data
 
-This POC uses generated synthetic retail data for customers, products, orders, and order details. No real customer or production information is used.
+This POC uses synthetic retail data for customers, products, orders, and order details. No real customer or production information is used.
 
-## Generate source CSVs
+## Quick start with included sample files
+
+The `data/sample/` folder contains small CSV files for a fast first run and schema inspection. Load these into the Source Lakehouse to validate the initial workspace setup.
+
+## Generate a full dataset
 
 From the repository root, run:
 
@@ -10,7 +14,7 @@ From the repository root, run:
 python data/generate_retail_data.py
 ```
 
-Defaults: 1,000 customers, 120 products, 5,000 orders, and approximately 12,500 order lines. The seed is fixed for reproducible output. Generated files are written to `data/generated/`, which is ignored by Git to avoid committing bulky derived data.
+Defaults: 1,000 customers, 120 products, 5,000 orders, and approximately 12,500 order lines. The seed is fixed for reproducible output. Files are written to `data/generated/`, which is ignored by Git to avoid committing bulky derived data.
 
 Change the scale:
 
